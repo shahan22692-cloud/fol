@@ -1,0 +1,1610 @@
+```html
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poplo — Python Contest Results</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #ffd700;
+    --gold-2: #ffae00;
+    --silver: #c0c8d8;
+    --bronze: #cd7f32;
+    --neon: #00f0ff;
+    --neon-2: #ff00e5;
+    --neon-3: #7c3aed;
+    --green: #00ff88;
+    --bg-1: #05060f;
+    --bg-2: #0a0e20;
+    --card: #0d1224;
+    --border: #1e2a4a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: radial-gradient(ellipse at top, #0a1230 0%, #05060f 60%, #000 100%);
+    min-height: 100vh;
+    color: #eef5ff;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    position: relative;
+    padding-bottom: 60px;
+  }
+
+  /* Animated grid background */
+  .grid-bg {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 240, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.06) 1px, transparent 1px);
+    background-size: 55px 55px;
+    animation: gridMove 25s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 85%);
+  }
+  @keyframes gridMove {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 55px 55px, 55px 55px; }
+  }
+
+  /* Floating orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.55;
+  }
+  .orb-1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, #00f0ff, transparent 70%);
+    top: -150px; left: -150px;
+    animation: float1 14s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 450px; height: 450px;
+    background: radial-gradient(circle, #ff00e5, transparent 70%);
+    bottom: -150px; right: -150px;
+    animation: float2 17s ease-in-out infinite;
+  }
+  .orb-3 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, #7c3aed, transparent 70%);
+    top: 45%; left: 40%;
+    animation: float3 20s ease-in-out infinite;
+  }
+  @keyframes float1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(120px, 80px) scale(1.15); }
+  }
+  @keyframes float2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-100px, -60px) scale(1.2); }
+  }
+  @keyframes float3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-140px, 100px) scale(0.9); }
+  }
+
+  /* Scanlines overlay */
+  .scanlines {
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 240, 255, 0.03) 0px,
+      rgba(0, 240, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+  }
+
+  /* Particles */
+  .particles { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+  .particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: var(--neon);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--neon), 0 0 20px var(--neon);
+    animation: rise linear infinite;
+    opacity: 0;
+  }
+  @keyframes rise {
+    0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1.3); opacity: 0; }
+  }
+
+  /* Container */
+  .container {
+    position: relative;
+    z-index: 5;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 3rem 1.2rem 2rem;
+  }
+
+  /* Terminal top bar */
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+    padding: 12px 20px;
+    background: rgba(8, 12, 25, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.08), inset 0 0 20px rgba(0, 240, 255, 0.03);
+    animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .t-dot {
+    width: 13px; height: 13px; border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .t-dot.r { background: #ff5f57; color: #ff5f57; }
+  .t-dot.y { background: #febc2e; color: #febc2e; }
+  .t-dot.g { background: #28c840; color: #28c840; }
+  .t-title {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--neon);
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px var(--neon);
+  }
+  .t-title::before { content: '⚡ '; }
+
+  /* Header */
+  .hero { text-align: center; margin-bottom: 2rem; }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: rgba(255, 0, 80, 0.12);
+    border: 1px solid #ff0050;
+    border-radius: 40px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #ff5577;
+    text-shadow: 0 0 10px #ff0050;
+    box-shadow: 0 0 25px rgba(255, 0, 80, 0.35), inset 0 0 15px rgba(255, 0, 80, 0.1);
+    margin-bottom: 20px;
+    animation: pulseLive 1.6s ease-in-out infinite;
+  }
+  @keyframes pulseLive {
+    0%, 100% { box-shadow: 0 0 25px rgba(255, 0, 80, 0.35), inset 0 0 15px rgba(255, 0, 80, 0.1); }
+    50% { box-shadow: 0 0 45px rgba(255, 0, 80, 0.7), inset 0 0 25px rgba(255, 0, 80, 0.2); }
+  }
+  .live-dot {
+    width: 9px; height: 9px;
+    background: #ff0050;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #ff0050;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .brand {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(3rem, 9vw, 6rem);
+    font-weight: 900;
+    letter-spacing: 6px;
+    line-height: 1;
+    background: linear-gradient(120deg, #00f0ff 0%, #7c3aed 40%, #ff00e5 70%, #00f0ff 100%);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.55));
+    animation: gradientShift 6s ease infinite;
+    position: relative;
+  }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .brand-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: #7a90c0;
+    margin-top: 12px;
+    letter-spacing: 2px;
+  }
+  .brand-sub::before { content: '// '; color: var(--neon-3); }
+  .brand-sub::after { content: ' ▊'; color: var(--neon); animation: blink 1s infinite; }
+
+  /* Sponsor banner */
+  .sponsor {
+    margin: 28px auto;
+    max-width: 720px;
+    padding: 20px 26px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(0, 240, 255, 0.12));
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    border-radius: 20px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.02rem;
+    letter-spacing: 0.5px;
+    color: #d6e6ff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.2), inset 0 0 40px rgba(124, 58, 237, 0.15);
+    animation: sponsorPulse 3s ease-in-out infinite;
+  }
+  @keyframes sponsorPulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(0, 240, 255, 0.2), inset 0 0 40px rgba(124, 58, 237, 0.15); }
+    50% { box-shadow: 0 0 70px rgba(0, 240, 255, 0.45), inset 0 0 60px rgba(124, 58, 237, 0.3); }
+  }
+  .sponsor::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: shimmer 3s infinite;
+  }
+  @keyframes shimmer {
+    100% { left: 100%; }
+  }
+  .sponsor .heart {
+    display: inline-block;
+    animation: heartbeat 1.1s infinite;
+    filter: drop-shadow(0 0 8px #ff00e5);
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.2); }
+  }
+
+  /* Section title */
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #ffffff;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+  }
+  .section-title::before {
+    content: '▸';
+    color: var(--neon);
+    text-shadow: 0 0 15px var(--neon);
+  }
+  .section-title .tag {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: #7a90c0;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: rgba(8, 12, 25, 0.7);
+  }
+
+  /* ========== CONTESTANT CARD ========== */
+  .contestant {
+    position: relative;
+    background: linear-gradient(135deg, rgba(13, 18, 36, 0.95), rgba(8, 12, 25, 0.95));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    opacity: 0;
+    transform: translateY(30px);
+    animation: cardEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes cardEnter {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .contestant::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: linear-gradient(180deg, var(--neon), var(--neon-2));
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .contestant:hover::before { opacity: 1; }
+  .contestant:hover {
+    border-color: rgba(0, 240, 255, 0.55);
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.25), 0 20px 40px -20px rgba(0, 0, 0, 0.8);
+    transform: translateY(-3px);
+  }
+
+  /* Rank color accents */
+  .contestant.rank-1 {
+    border-color: rgba(255, 215, 0, 0.5);
+    background: linear-gradient(135deg, rgba(45, 35, 8, 0.9), rgba(13, 18, 36, 0.95));
+  }
+  .contestant.rank-1::before { background: linear-gradient(180deg, #ffd700, #ffae00); opacity: 1; }
+  .contestant.rank-2 {
+    border-color: rgba(192, 200, 216, 0.5);
+    background: linear-gradient(135deg, rgba(30, 36, 48, 0.9), rgba(13, 18, 36, 0.95));
+  }
+  .contestant.rank-2::before { background: linear-gradient(180deg, #c0c8d8, #8a94a8); opacity: 1; }
+  .contestant.rank-3 {
+    border-color: rgba(205, 127, 50, 0.5);
+    background: linear-gradient(135deg, rgba(45, 28, 12, 0.9), rgba(13, 18, 36, 0.95));
+  }
+  .contestant.rank-3::before { background: linear-gradient(180deg, #cd7f32, #8b4513); opacity: 1; }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    padding: 18px 22px;
+    gap: 18px;
+    position: relative;
+  }
+
+  .rank-badge {
+    min-width: 58px; height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    border-radius: 16px;
+    background: rgba(0, 240, 255, 0.08);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    color: var(--neon);
+    text-shadow: 0 0 12px currentColor;
+    box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.1);
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+  .contestant.rank-1 .rank-badge {
+    color: var(--gold);
+    border-color: rgba(255, 215, 0, 0.5);
+    background: rgba(255, 215, 0, 0.1);
+    box-shadow: inset 0 0 25px rgba(255, 215, 0, 0.2), 0 0 25px rgba(255, 215, 0, 0.3);
+  }
+  .contestant.rank-2 .rank-badge {
+    color: var(--silver);
+    border-color: rgba(192, 200, 216, 0.5);
+    background: rgba(192, 200, 216, 0.1);
+    box-shadow: inset 0 0 25px rgba(192, 200, 216, 0.15), 0 0 20px rgba(192, 200, 216, 0.25);
+  }
+  .contestant.rank-3 .rank-badge {
+    color: var(--bronze);
+    border-color: rgba(205, 127, 50, 0.5);
+    background: rgba(205, 127, 50, 0.1);
+    box-shadow: inset 0 0 25px rgba(205, 127, 50, 0.15), 0 0 20px rgba(205, 127, 50, 0.25);
+  }
+
+  .head-info { flex: 1; min-width: 0; }
+  .name-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .contestant-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #ffffff;
+  }
+  .contestant.rank-1 .contestant-name { color: var(--gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+  .contestant.rank-2 .contestant-name { color: var(--silver); text-shadow: 0 0 20px rgba(192, 200, 216, 0.4); }
+  .contestant.rank-3 .contestant-name { color: #f0b072; text-shadow: 0 0 20px rgba(205, 127, 50, 0.5); }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    padding: 4px 11px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .badge.sponsored {
+    background: rgba(0, 255, 136, 0.12);
+    border-color: rgba(0, 255, 136, 0.5);
+    color: var(--green);
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+    animation: badgeGlow 2s ease-in-out infinite;
+  }
+  @keyframes badgeGlow {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(0, 255, 136, 0.6); }
+  }
+  .badge.noshield {
+    background: rgba(255, 60, 60, 0.1);
+    border-color: rgba(255, 60, 60, 0.4);
+    color: #ff8080;
+  }
+  .badge.rank-badge-txt {
+    background: rgba(0, 240, 255, 0.08);
+    border-color: rgba(0, 240, 255, 0.35);
+    color: var(--neon);
+  }
+
+  .mini-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #7a90c0;
+    flex-wrap: wrap;
+  }
+  .mini-stats span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .mini-stats b { color: #c8d8ff; font-weight: 700; }
+
+  .expand-icon {
+    font-size: 1.4rem;
+    color: var(--neon);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    text-shadow: 0 0 12px var(--neon);
+    flex-shrink: 0;
+  }
+  .contestant.open .expand-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Progress bar in head */
+  .head-progress {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .head-progress-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--neon), var(--neon-2));
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 10px currentColor;
+  }
+  .contestant.rank-1 .head-progress-fill { background: linear-gradient(90deg, #ffd700, #ffae00); }
+  .contestant.rank-2 .head-progress-fill { background: linear-gradient(90deg, #c0c8d8, #8a94a8); }
+  .contestant.rank-3 .head-progress-fill { background: linear-gradient(90deg, #cd7f32, #8b4513); }
+
+  /* ========== EXPANDED PANEL ========== */
+  .expand-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s;
+    opacity: 0;
+    border-top: 1px solid transparent;
+  }
+  .contestant.open .expand-panel {
+    max-height: 700px;
+    opacity: 1;
+    border-top: 1px solid rgba(0, 240, 255, 0.15);
+  }
+
+  .panel-inner {
+    padding: 24px 22px 26px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* Donut chart */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 10px;
+  }
+  .donut {
+    width: 170px; height: 170px;
+    position: relative;
+  }
+  .donut svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.5));
+  }
+  .donut circle {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+  }
+  .donut .track { stroke: rgba(255, 255, 255, 0.06); }
+  .donut .progress-ring {
+    stroke: url(#gradNeon);
+    stroke-dasharray: 440;
+    stroke-dashoffset: 440;
+    transition: stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+  }
+  .contestant.rank-1 .donut .progress-ring { stroke: url(#gradGold); }
+  .contestant.rank-2 .donut .progress-ring { stroke: url(#gradSilver); }
+  .contestant.rank-3 .donut .progress-ring { stroke: url(#gradBronze); }
+
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .donut-val {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.1rem;
+    font-weight: 900;
+    background: linear-gradient(120deg, var(--neon), var(--neon-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.7));
+  }
+  .contestant.rank-1 .donut-val {
+    background: linear-gradient(120deg, #ffd700, #ffae00);
+    -webkit-background-clip: text; background-clip: text;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));
+  }
+  .contestant.rank-2 .donut-val {
+    background: linear-gradient(120deg, #e8eef8, #a8b4c8);
+    -webkit-background-clip: text; background-clip: text;
+    filter: drop-shadow(0 0 15px rgba(192, 200, 216, 0.7));
+  }
+  .contestant.rank-3 .donut-val {
+    background: linear-gradient(120deg, #e8a060, #cd7f32);
+    -webkit-background-clip: text; background-clip: text;
+    filter: drop-shadow(0 0 15px rgba(205, 127, 50, 0.7));
+  }
+  .donut-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: #7a90c0;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  /* Right side stats */
+  .panel-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+  }
+  .stat-row {
+    background: rgba(8, 12, 25, 0.7);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: 0.3s;
+  }
+  .stat-row:hover {
+    border-color: rgba(0, 240, 255, 0.4);
+    background: rgba(0, 240, 255, 0.04);
+  }
+  .stat-row .ico {
+    width: 38px; height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .stat-row .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 1.5px;
+    color: #7a90c0;
+    text-transform: uppercase;
+  }
+  .stat-row .val {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-top: 3px;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+  }
+
+  /* Bio line */
+  .panel-bio {
+    grid-column: 1 / -1;
+    background: rgba(0, 240, 255, 0.04);
+    border-left: 3px solid var(--neon);
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #a8bcd8;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .panel-bio b { color: var(--neon); font-weight: 700; }
+  .contestant.rank-1 .panel-bio { border-left-color: var(--gold); background: rgba(255, 215, 0, 0.04); }
+  .contestant.rank-1 .panel-bio b { color: var(--gold); }
+  .contestant.rank-2 .panel-bio { border-left-color: var(--silver); background: rgba(192, 200, 216, 0.04); }
+  .contestant.rank-2 .panel-bio b { color: var(--silver); }
+  .contestant.rank-3 .panel-bio { border-left-color: var(--bronze); background: rgba(205, 127, 50, 0.04); }
+  .contestant.rank-3 .panel-bio b { color: var(--bronze); }
+
+  /* Award ribbon inside panel */
+  .award-ribbon {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .award-ribbon.sponsor {
+    background: linear-gradient(90deg, rgba(0, 255, 136, 0.15), rgba(0, 240, 255, 0.15));
+    border: 1px solid rgba(0, 255, 136, 0.5);
+    color: var(--green);
+    text-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+    animation: ribbonPulse 2s infinite;
+  }
+  @keyframes ribbonPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 136, 0.2); }
+    50% { box-shadow: 0 0 45px rgba(0, 255, 136, 0.45); }
+  }
+  .award-ribbon.none {
+    background: rgba(255, 60, 60, 0.06);
+    border: 1px dashed rgba(255, 60, 60, 0.35);
+    color: #ff8080;
+  }
+
+  /* ========== ABOUT SECTION ========== */
+  .about {
+    position: relative;
+    z-index: 5;
+    max-width: 1000px;
+    margin: 50px auto 0;
+    padding: 40px 36px;
+    background: linear-gradient(135deg, rgba(13, 18, 36, 0.9), rgba(8, 12, 25, 0.9));
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: 28px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 0 60px rgba(0, 240, 255, 0.15), inset 0 0 60px rgba(124, 58, 237, 0.08);
+    overflow: hidden;
+  }
+  .about::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent, rgba(0, 240, 255, 0.15), transparent 30%);
+    animation: spin 8s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes spin {
+    100% { transform: rotate(360deg); }
+  }
+
+  .about > * { position: relative; z-index: 1; }
+
+  .about h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 24px;
+    color: #ffffff;
+    text-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .about h2::before {
+    content: '{ }';
+    color: var(--neon);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    text-shadow: 0 0 15px var(--neon);
+  }
+
+  .about p {
+    color: #a8bcd8;
+    line-height: 1.85;
+    font-size: 0.96rem;
+    margin-bottom: 16px;
+    text-align: justify;
+  }
+  .about p:last-child { margin-bottom: 0; }
+  .about .hl {
+    color: var(--neon);
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  }
+  .about .hl-pink {
+    color: var(--neon-2);
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(255, 0, 229, 0.5);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(0, 240, 255, 0.15);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #5a6a90;
+    letter-spacing: 1px;
+  }
+  .footer b { color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .container { padding: 1.5rem 0.9rem; }
+    .brand { letter-spacing: 3px; }
+    .panel-inner { grid-template-columns: 1fr; }
+    .donut { width: 140px; height: 140px; }
+    .donut-val { font-size: 1.7rem; }
+    .card-head { padding: 14px 14px; gap: 12px; }
+    .rank-badge { min-width: 46px; height: 46px; font-size: 1.1rem; border-radius: 12px; }
+    .contestant-name { font-size: 0.95rem; letter-spacing: 0.5px; }
+    .mini-stats { font-size: 0.7rem; gap: 12px; }
+    .about { padding: 28px 20px; }
+    .about h2 { font-size: 1.15rem; letter-spacing: 2px; }
+    .about p { font-size: 0.88rem; }
+    .sponsor { font-size: 0.85rem; padding: 14px 16px; }
+    .section-title { font-size: 1.05rem; letter-spacing: 2px; }
+    .section-title .tag { font-size: 0.6rem; padding: 4px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="grid-bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="scanlines"></div>
+<div class="particles" id="particles"></div>
+
+<!-- SVG gradient defs -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="gradNeon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#ff00e5"/>
+    </linearGradient>
+    <linearGradient id="gradGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd700"/>
+      <stop offset="100%" stop-color="#ffae00"/>
+    </linearGradient>
+    <linearGradient id="gradSilver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8eef8"/>
+      <stop offset="100%" stop-color="#8a94a8"/>
+    </linearGradient>
+    <linearGradient id="gradBronze" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8a060"/>
+      <stop offset="100%" stop-color="#8b4513"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="container">
+
+  <!-- Terminal bar -->
+  <div class="terminal-bar">
+    <div class="t-dot r"></div>
+    <div class="t-dot y"></div>
+    <div class="t-dot g"></div>
+    <div class="t-title">poplo_contest_2026.results</div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      LIVE RESULTS
+    </div>
+    <div class="brand">POPLO</div>
+    <div class="brand-sub">python contest · official leaderboard</div>
+  </div>
+
+  <!-- Sponsor -->
+  <div class="sponsor">
+    <span class="heart">💖</span>
+    &nbsp;ONLY THE TOP 2 CONTESTANTS RECEIVE FULL FINANCIAL SPONSORSHIP&nbsp;
+    <span class="heart">💖</span>
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="section-title">
+    FINAL LEADERBOARD
+    <span class="tag">10 contestants · click to expand</span>
+  </div>
+
+  <div class="leaderboard" id="leaderboard">
+
+    <!-- RANK 1 -->
+    <div class="contestant rank-1" data-accuracy="87" data-time="19" data-award="sponsored">
+      <div class="card-head">
+        <div class="rank-badge">1</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Alex Chen</div>
+            <span class="badge sponsored">🥇 SPONSORED</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>87%</b> accuracy</span>
+            <span>⏳ <b>19h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:87%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="87"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">87%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">87%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">19 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#1 · GOLD</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon sponsor">💎 FULL FINANCIAL SPONSORSHIP AWARDED 💎</div>
+          <div class="panel-bio">
+            <b>Alex Chen</b> dominated the contest with razor-sharp problem-solving and blazing submission speed. His balanced combination of high accuracy and the fastest response time in the entire tournament secured him the top spot and a full sponsorship package.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANK 2 -->
+    <div class="contestant rank-2" data-accuracy="89" data-time="21" data-award="sponsored">
+      <div class="card-head">
+        <div class="rank-badge">2</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Maria Rodriguez</div>
+            <span class="badge sponsored">🥈 SPONSORED</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>89%</b> accuracy</span>
+            <span>⏳ <b>21h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:89%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="89"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">89%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">89%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">21 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#2 · SILVER</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon sponsor">💎 FULL FINANCIAL SPONSORSHIP AWARDED 💎</div>
+          <div class="panel-bio">
+            <b>Maria Rodriguez</b> delivered the highest accuracy among the sponsored contestants with an impressive 89%. Her methodical approach and clean, optimized Python code earned her the second spot and a sponsorship prize.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANK 3 — NO AWARD -->
+    <div class="contestant rank-3" data-accuracy="96" data-time="39" data-award="none">
+      <div class="card-head">
+        <div class="rank-badge">3</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Mohammad Amin Taghavi</div>
+            <span class="badge noshield">✕ NO AWARD</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>96%</b> accuracy</span>
+            <span>⏳ <b>39h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:96%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="96"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">96%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">96%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">39 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#3 · BRONZE</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon none">✕ NO SPONSORSHIP — RESPONSE TIME EXCEEDED LIMIT ✕</div>
+          <div class="panel-bio">
+            <b>Mohammad Amin Taghavi</b> achieved the highest accuracy in the entire contest (96%), proving exceptional technical skill. However, his longer response time of 39 hours placed him outside the sponsorship threshold, making him the only top-3 contestant not to receive an award.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANK 4 -->
+    <div class="contestant" data-accuracy="84" data-time="20" data-award="none">
+      <div class="card-head">
+        <div class="rank-badge">4</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Liam O'Connor</div>
+            <span class="badge rank-badge-txt">#4</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>84%</b> accuracy</span>
+            <span>⏳ <b>20h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:84%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="84"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">84%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">84%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">20 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#4</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon none">✕ NO SPONSORSHIP</div>
+          <div class="panel-bio">
+            <b>Liam O'Connor</b> put on a solid performance with fast submissions, but a few tricky algorithm problems held him back from the top spots. Keep an eye on him in the next edition.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANK 5 -->
+    <div class="contestant" data-accuracy="82" data-time="22" data-award="none">
+      <div class="card-head">
+        <div class="rank-badge">5</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Sofia Petrova</div>
+            <span class="badge rank-badge-txt">#5</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>82%</b> accuracy</span>
+            <span>⏳ <b>22h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:82%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="82"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">82%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">82%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">22 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#5</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon none">✕ NO SPONSORSHIP</div>
+          <div class="panel-bio">
+            <b>Sofia Petrova</b> showed strong Python fundamentals and clean coding style. Her steady pace kept her in the top half of the leaderboard throughout the contest.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANK 6 -->
+    <div class="contestant" data-accuracy="80" data-time="18" data-award="none">
+      <div class="card-head">
+        <div class="rank-badge">6</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Kenji Tanaka</div>
+            <span class="badge rank-badge-txt">#6</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>80%</b> accuracy</span>
+            <span>⏳ <b>18h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:80%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="80"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">80%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">80%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">18 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#6</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon none">✕ NO SPONSORSHIP</div>
+          <div class="panel-bio">
+            <b>Kenji Tanaka</b> had one of the fastest response times in the contest. A bit more accuracy on edge cases would have pushed him much higher up the ranks.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANK 7 -->
+    <div class="contestant" data-accuracy="78" data-time="23" data-award="none">
+      <div class="card-head">
+        <div class="rank-badge">7</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Elena Novak</div>
+            <span class="badge rank-badge-txt">#7</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>78%</b> accuracy</span>
+            <span>⏳ <b>23h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:78%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="78"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">78%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">78%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">23 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#7</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon none">✕ NO SPONSORSHIP</div>
+          <div class="panel-bio">
+            <b>Elena Novak</b> tackled complex dynamic programming problems with confidence. Her consistency across the mid-tier shows real promise for future contests.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANK 8 -->
+    <div class="contestant" data-accuracy="76" data-time="24" data-award="none">
+      <div class="card-head">
+        <div class="rank-badge">8</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Omar Haddad</div>
+            <span class="badge rank-badge-txt">#8</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>76%</b> accuracy</span>
+            <span>⏳ <b>24h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:76%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="76"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">76%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">76%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">24 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#8</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon none">✕ NO SPONSORSHIP</div>
+          <div class="panel-bio">
+            <b>Omar Haddad</b> brought strong mathematical intuition to the contest, solving several tricky number theory problems with elegant Python one-liners.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANK 9 — ARMIN MOHAMMADI -->
+    <div class="contestant" data-accuracy="74" data-time="20" data-award="none">
+      <div class="card-head">
+        <div class="rank-badge">9</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Armin Mohammadi</div>
+            <span class="badge rank-badge-txt">#9</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>74%</b> accuracy</span>
+            <span>⏳ <b>20h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:74%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="74"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">74%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">74%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">20 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#9</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon none">✕ NO SPONSORSHIP</div>
+          <div class="panel-bio">
+            <b>Armin Mohammadi</b> impressed with fast submissions and creative problem-solving approaches. A few last-mile bugs cost him precious accuracy points.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANK 10 -->
+    <div class="contestant" data-accuracy="72" data-time="22" data-award="none">
+      <div class="card-head">
+        <div class="rank-badge">10</div>
+        <div class="head-info">
+          <div class="name-line">
+            <div class="contestant-name">Hana Kim</div>
+            <span class="badge rank-badge-txt">#10</span>
+          </div>
+          <div class="mini-stats">
+            <span>🎯 <b>72%</b> accuracy</span>
+            <span>⏳ <b>22h</b> response</span>
+          </div>
+        </div>
+        <div class="expand-icon">⌄</div>
+        <div class="head-progress"><div class="head-progress-fill" style="width:72%"></div></div>
+      </div>
+      <div class="expand-panel">
+        <div class="panel-inner">
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress-ring" cx="80" cy="80" r="70" data-pct="72"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-val">72%</div>
+                <div class="donut-label">Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-stats">
+            <div class="stat-row">
+              <div class="ico">🎯</div>
+              <div>
+                <div class="lbl">Correct Answers</div>
+                <div class="val">72%</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">⏳</div>
+              <div>
+                <div class="lbl">Response Time</div>
+                <div class="val">22 HOURS</div>
+              </div>
+            </div>
+            <div class="stat-row">
+              <div class="ico">🏆</div>
+              <div>
+                <div class="lbl">Final Rank</div>
+                <div class="val">#10</div>
+              </div>
+            </div>
+          </div>
+          <div class="award-ribbon none">✕ NO SPONSORSHIP</div>
+          <div class="panel-bio">
+            <b>Hana Kim</b> rounded out the top 10 with steady effort and a great attitude. Every contest is a stepping stone — we expect big things from her next time.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- About -->
+  <div class="about">
+    <h2>ABOUT POPLO &amp; ONLINE CONTESTS</h2>
+    <p>
+      <span class="hl">Poplo</span> is an online platform dedicated to competitive programming,
+      bringing together coders from around the world to solve algorithmic challenges in Python
+      and other languages. Online contests are a fantastic way to sharpen your problem-solving
+      skills, learn to write efficient code under time pressure, and compare your abilities with
+      developers globally.
+    </p>
+    <p>
+      In a typical online contest, participants receive a set of problems of varying difficulty
+      and must submit working solutions within a fixed time window. Scoring is usually based on
+      <span class="hl">accuracy</span> (how many test cases your solution passes) and
+      <span class="hl-pink">response time</span> (how quickly you submit correct answers).
+      Many contests also track penalties for wrong submissions, encouraging careful thinking
+      before coding.
+    </p>
+    <p>
+      Participating regularly helps you master data structures, algorithms, dynamic programming,
+      graph theory, and more. It's also a great way to build a portfolio, meet other programmers,
+      and even catch the attention of tech companies looking for talented developers. Whether
+      you're a beginner or an experienced competitor, there's always something new to learn.
+    </p>
+    <p>
+      At <span class="hl">Poplo</span>, we believe in nurturing talent. That's why the
+      <span class="hl-pink">top two contestants</span> in our flagship Python contest receive
+      full financial sponsorship to continue their coding journey — from premium courses and
+      tools to mentorship and competition travel grants.
+    </p>
+  </div>
+
+  <div class="footer">
+    <b>POPLO</b> · python contest 2026 · &lt;/results&gt;
+  </div>
+
+</div>
+
+<script>
+  // Generate particles
+  (function() {
+    const container = document.getElementById('particles');
+    const colors = ['#00f0ff', '#ff00e5', '#7c3aed', '#00ff88'];
+    for (let i = 0; i < 45; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (8 + Math.random() * 12) + 's';
+      p.style.animationDelay = (Math.random() * 15) + 's';
+      const c = colors[Math.floor(Math.random() * colors.length)];
+      p.style.background = c;
+      p.style.boxShadow = `0 0 10px ${c}, 0 0 20px ${c}`;
+      container.appendChild(p);
+    }
+  })();
+
+  // Stagger card entrance
+  document.querySelectorAll('.contestant').forEach((el, i) => {
+    el.style.animationDelay = (0.1 + i * 0.08) + 's';
+  });
+
+  // Click to expand with donut animation
+  document.querySelectorAll('.contestant').forEach(card => {
+    const head = card.querySelector('.card-head');
+    const ring = card.querySelector('.progress-ring');
+    const pct = card.dataset.accuracy;
+
+    head.addEventListener('click', () => {
+      const isOpen = card.classList.contains('open');
+
+      // Close all others
+      document.querySelectorAll('.contestant.open').forEach(other => {
+        if (other !== card) {
+          other.classList.remove('open');
+          const r = other.querySelector('.progress-ring');
+          if (r) r.style.strokeDashoffset = 440;
+        }
+      });
+
+      // Toggle this one
+      if (isOpen) {
+        card.classList.remove('open');
+        if (ring) ring.style.strokeDashoffset = 440;
+      } else {
+        card.classList.add('open');
+        // animate donut after panel opens
+        setTimeout(() => {
+          if (ring) {
+            const circumference = 2 * Math.PI * 70; // r=70
+            const offset = circumference * (1 - pct / 100);
+            ring.style.strokeDashoffset = offset;
+          }
+        }, 250);
+      }
+    });
+  });
+
+  // Subtle parallax on hero brand
+  document.addEventListener('mousemove', (e) => {
+    const brand = document.querySelector('.brand');
+    if (!brand) return;
+    const x = (e.clientX / window.innerWidth - 0.5) * 10;
+    const y = (e.clientY / window.innerHeight - 0.5) * 10;
+    brand.style.transform = `translate(${x}px, ${y}px)`;
+  });
+</script>
+
+</body>
+</html>
+```
